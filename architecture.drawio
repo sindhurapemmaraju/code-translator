@@ -1,0 +1,229 @@
+<mxfile host="app.diagrams.net" modified="2026-10-01" agent="CodeTranslator" version="24.0.0" type="device">
+  <diagram id="arch-1" name="Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Code Translation Assistant - System Architecture" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- USER / BROWSER -->
+        <mxCell id="user-group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="320" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-label" value="USER / BROWSER" style="text;html=1;fontSize=14;fontStyle=1;align=center;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="160" y="110" width="160" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-html" value="index.html&#xa;(Single File Frontend)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="150" width="240" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-input" value="Input Panel&#xa;Code Editor + Source Language Selector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="210" width="240" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-output" value="Output Panel&#xa;Translated Code + 5 Tabs (Code, Verify, Console, Explanation, Errors)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="240" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-actions" value="Actions: Translate | Auto-fix | Explain and Check | Run | Swap | Copy | Download" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="315" width="240" height="35" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-tech" value="Tech: HTML + CSS + Vanilla JS&#xa;Fonts: Inter, DM Sans, JetBrains Mono&#xa;No frameworks, no build step" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#999999;fontSize=10;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="360" width="240" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fe-langs" value="19 Languages Supported&#xa;Python, Java, C++, C, C#, JavaScript, TypeScript,&#xa;Go, Rust, Kotlin, Swift, PHP, Ruby, Scala, R, Dart, MATLAB, SQL, Bash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="100" y="425" width="280" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- BACKEND -->
+        <mxCell id="be-group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="100" width="380" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="be-label" value="BACKEND (FastAPI / Python)" style="text;html=1;fontSize=14;fontStyle=1;align=center;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="580" y="110" width="260" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="be-nodb" value="No Database (No MySQL, No SQLite, No MongoDB) - Fully Stateless" style="text;html=1;fontSize=10;fontStyle=2;align=center;fontColor=#cc0000;" vertex="1" parent="1">
+          <mxGeometry x="560" y="132" width="280" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-api" value="REST API Endpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=12;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="555" y="170" width="310" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ep1" value="POST /api/translate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="555" y="210" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep2" value="POST /api/analyze" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="715" y="210" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep3" value="POST /api/run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="555" y="250" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep4" value="POST /api/autofix (NDJSON stream)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="715" y="250" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep5" value="GET /api/runtimes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="555" y="290" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep6" value="GET / (serves index.html)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="715" y="290" width="150" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-core" value="Core Logic" style="text;html=1;fontSize=12;fontStyle=1;align=center;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="645" y="330" width="130" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-chunk" value="chunk_code()&#xa;Splits large files at function/class&#xa;boundaries (~6000 chars per part)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="355" width="150" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-ask" value="ask()&#xa;Central LLM caller with retry&#xa;+ fallback + exponential backoff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="715" y="355" width="150" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-prompts" value="Prompt Engineering&#xa;TRANSLATE_SYS | ANALYZE_SYS | FIX_SYS&#xa;(System prompts that direct the AI model)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="420" width="310" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-judge" value="judge()&#xa;Compares original vs translated output&#xa;Decides pass/fail for auto-fix loop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="475" width="150" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-parse" value="strip_fences() / parse_json()&#xa;Extracts code from markdown fences&#xa;Parses JSON from model responses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="715" y="475" width="150" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-exec" value="Code Execution Engine&#xa;run_code() using subprocess.run()&#xa;Temp directory per run | Safe env filter | Timeout kill" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="545" width="310" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-deps" value="Dependencies: fastapi, uvicorn, httpx, python-dotenv" style="text;html=1;fontSize=9;fontStyle=2;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="580" y="605" width="260" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="be-config" value="Config via .env file&#xa;PROVIDER | GEMINI_API_KEY | GEMINI_MODEL | CHUNK_CHARS | RUN_TIMEOUT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#999999;fontSize=9;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="555" y="635" width="310" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- AI MODEL PROVIDERS -->
+        <mxCell id="ai-group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="100" width="300" height="310" as="geometry"/>
+        </mxCell>
+        <mxCell id="ai-label" value="AI MODEL PROVIDERS" style="text;html=1;fontSize=14;fontStyle=1;align=center;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="110" width="180" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ai-gemini" value="Google Gemini API (Default)&#xa;&#xa;Primary: gemini-3.8-flash&#xa;Fallback: gemini-3.5-flash-lite&#xa;&#xa;Transformer-based LLM&#xa;by Google DeepMind&#xa;&#xa;8000 output tokens (translate)&#xa;6000 output tokens (analyze)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="145" width="260" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ai-ollama" value="Ollama (Local Alternative)&#xa;&#xa;Model: qwen2.5-coder:7b&#xa;7 billion parameters&#xa;by Alibaba (Qwen family)&#xa;&#xa;Runs locally, no API key needed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="295" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- LOCAL RUNTIMES -->
+        <mxCell id="rt-group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="460" width="300" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt-label" value="LOCAL RUNTIMES (Code Execution)" style="text;html=1;fontSize=13;fontStyle=1;align=center;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="470" width="240" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt-list" value="Python (sys.executable)&#xa;JavaScript (node)&#xa;Java (javac + java)&#xa;C (gcc)&#xa;C++ (g++)&#xa;Go (go run)&#xa;PHP (php)&#xa;Ruby (ruby)&#xa;Bash (bash)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="500" width="130" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt-detail" value="Each run:&#xa;1. Create temp directory&#xa;2. Write code to file&#xa;3. Compile (if needed)&#xa;4. Execute with timeout&#xa;5. Capture stdout/stderr&#xa;6. Clean up temp dir&#xa;&#xa;Safe env filter strips&#xa;GEMINI_API_KEY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="500" width="130" height="160" as="geometry"/>
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fe-html" target="be-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow1-label" value="HTTP fetch()&#xa;JSON request/response&#xa;Same-origin (no CORS)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#333333;" vertex="1" connectable="0" parent="arrow1">
+          <mxGeometry x="0.1" relative="1" as="geometry">
+            <mxPoint y="-10" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=2;fontSize=10;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="be-ask" target="ai-gemini">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow2-label" value="HTTPS POST&#xa;httpx async client&#xa;API key in header" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#b85450;" vertex="1" connectable="0" parent="arrow2">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint y="-10" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=10;" edge="1" parent="1" source="be-ask" target="ai-ollama">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="382"/>
+              <mxPoint x="980" y="345"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow3-label" value="HTTP POST&#xa;localhost:11434&#xa;(alternative)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#b85450;" vertex="1" connectable="0" parent="arrow3">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint y="20" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="be-exec" target="rt-group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow4-label" value="subprocess.run()&#xa;in temp directory" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#9673a6;" vertex="1" connectable="0" parent="arrow4">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint y="-10" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d6b656;strokeWidth=2;dashed=1;fontSize=10;" edge="1" parent="1" source="be-judge" target="be-ask">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="502"/>
+              <mxPoint x="540" y="440"/>
+              <mxPoint x="790" y="440"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow5-label" value="Auto-fix loop&#xa;(up to 5 rounds)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#d6b656;" vertex="1" connectable="0" parent="arrow5">
+          <mxGeometry x="0.3" relative="1" as="geometry">
+            <mxPoint x="-40" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1;dashed=1;fontSize=10;" edge="1" parent="1" source="ep6" target="fe-html">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="140"/>
+              <mxPoint x="450" y="140"/>
+              <mxPoint x="450" y="172"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow6-label" value="Serves HTML" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;fontSize=9;fontColor=#82b366;" vertex="1" connectable="0" parent="arrow6">
+          <mxGeometry x="-0.2" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="No database is used anywhere in this system.&#xa;All state exists only in browser memory.&#xa;Backend is fully stateless." style="text;html=1;fontSize=11;fontStyle=3;align=left;fontColor=#cc0000;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="540" width="300" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend2" value="Deep Learning Model: Transformer (decoder-only)&#xa;No custom dataset. No training. No fine-tuning.&#xa;Translation driven entirely by prompt engineering." style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="610" width="350" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

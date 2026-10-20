@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeShift · Code Translation Assistant</title>
+<meta name="description" content="Translate, explain, and debug code between 19 languages in seconds. Powered by AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Design Tokens (Minimalist) ─── */
+:root[data-theme=dark]{
+  --bg:#0e0e10;--bg2:#18181b;--panel:#1c1c21;--panel-solid:#1c1c21;
+  --code:#141417;--ink:#e4e4e7;--mute:#71717a;--line:rgba(255,255,255,.08);
+  --a1:#a1a1aa;--a2:#d4d4d8;--accent:#e4e4e7;
+  --ok:#4ade80;--err:#f87171;--warn:#fbbf24;--info:#93c5fd;
+  --shadow:0 4px 24px rgba(0,0,0,.4);--glow:rgba(255,255,255,.04);
+  --surface-border:1px solid rgba(255,255,255,.06);
+}
+:root[data-theme=light]{
+  --bg:#fafafa;--bg2:#f4f4f5;--panel:#ffffff;--panel-solid:#ffffff;
+  --code:#f8f8fa;--ink:#18181b;--mute:#71717a;--line:rgba(0,0,0,.07);
+  --a1:#52525b;--a2:#3f3f46;--accent:#18181b;
+  --ok:#16a34a;--err:#dc2626;--warn:#ca8a04;--info:#2563eb;
+  --shadow:0 4px 20px rgba(0,0,0,.06);--glow:rgba(0,0,0,.02);
+  --surface-border:1px solid rgba(0,0,0,.06);
+}
+
+/* ─── Reset & Base ─── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;color:var(--ink);
+  font:15px/1.6 "Inter",system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  transition:background .4s ease,color .3s ease;
+  overflow-x:hidden;
+}
+
+/* ─── Subtle Background ─── */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 800px 600px at 50% 0%,var(--glow),transparent);
+}
+
+/* ─── Layout Container ─── */
+.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 24px 48px}
+
+/* ─── Header ─── */
+header{
+  display:flex;align-items:center;gap:18px;
+  padding:28px 4px 20px;flex-wrap:wrap;
+}
+.logo{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--accent);
+  display:grid;place-items:center;
+  font:700 17px "JetBrains Mono",monospace;
+  color:var(--bg);
+  transition:transform .25s ease;
+}
+.logo:hover{transform:scale(1.05)}
+.brand h1{
+  font-family:"DM Sans","Inter",system-ui,sans-serif;
+  font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.1;
+}
+.brand h1 span{font-weight:500;color:var(--mute)}
+.brand p{
+  margin-top:4px;color:var(--mute);font-size:13px;font-weight:400;
+  font-family:"DM Sans","Inter",system-ui,sans-serif;
+  white-space:nowrap;overflow:hidden;
+  border-right:2px solid var(--mute);
+  width:0;animation:typing 2s steps(40,end) .5s forwards,blink .6s step-end 6;
+}
+@keyframes typing{from{width:0}to{width:100%}}
+@keyframes blink{50%{border-color:transparent}}
+.grow{flex:1}
+
+/* ─── Buttons & Controls ─── */
+button,select{
+  font:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  background:var(--panel-solid);
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 14px;cursor:pointer;
+  transition:all .15s ease;
+}
+button:hover:not(:disabled){
+  border-color:var(--a1);
+  background:var(--bg2);
+}
+button:active:not(:disabled){opacity:.8}
+button:disabled{opacity:.4;cursor:wait}
+:focus-visible{outline:2px solid var(--mute);outline-offset:2px}
+select{
+  padding:8px 32px 8px 12px;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='%2371717a'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  min-width:0;
+}
+
+.primary{
+  background:var(--accent);
+  border:1px solid var(--accent);color:var(--bg);
+  font-weight:600;
+  padding:8px 20px;
+}
+.primary:hover:not(:disabled){
+  opacity:.85;background:var(--accent);border-color:var(--accent);
+}
+
+#theme{
+  width:38px;height:38px;padding:0;font-size:18px;
+  display:grid;place-items:center;
+  border-radius:10px;
+  transition:transform .2s ease;
+}
+#theme:hover{transform:scale(1.1)}
+
+/* ─── Feature Chips ─── */
+.chips{
+  display:flex;gap:10px;padding:0 4px 8px;flex-wrap:wrap;align-items:center;
+}
+.chip{
+  font-size:11px;font-weight:500;color:var(--mute);
+  padding:4px 12px;
+  border:1px solid var(--line);border-radius:999px;
+  background:transparent;
+  transition:color .2s ease;
+}
+.chip:hover{color:var(--ink)}
+
+/* ─── Status Bar ─── */
+#status{
+  padding:6px 4px 0;min-height:28px;
+  color:var(--mute);font-size:13px;font-weight:500;
+  transition:color .3s ease;
+}
+#status.err{color:var(--err)}
+#status.ok{color:var(--ok)}
+
+/* ─── Main Grid ─── */
+main{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  padding-top:14px;
+}
+
+/* ─── Panels ─── */
+.pane{
+  background:var(--panel-solid);
+  border:var(--surface-border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+  min-height:540px;overflow:hidden;
+  transition:box-shadow .25s ease;
+}
+
+/* ─── Panel Bar ─── */
+.bar{
+  display:flex;gap:8px;align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  flex-wrap:wrap;
+  background:linear-gradient(180deg,var(--bg2),transparent);
+  transition:background .3s ease;
+}
+.dots{display:flex;gap:7px;margin-right:6px}
+.dots i{
+  width:11px;height:11px;border-radius:50%;
+  transition:transform .2s ease;
+}
+.dots i:nth-child(1){background:#ff5f57}
+.dots i:nth-child(2){background:#febc2e}
+.dots i:nth-child(3){background:#28c840}
+.dots:hover i{transform:scale(1.2)}
+.bar b{font-weight:700;font-size:15px}
+
+/* ─── Code Editor / Output ─── */
+textarea,pre.out{
+  flex:1;margin:0;border:0;
+  padding:18px;
+  background:var(--code);
+  color:var(--ink);
+  font:13.5px/1.7 "JetBrains Mono",monospace;
+  resize:none;overflow:auto;white-space:pre;
+  min-height:400px;tab-size:4;
+  transition:background .3s ease;
+}
+textarea::placeholder{color:var(--mute);font-style:italic}
+textarea:focus{outline:none;background:color-mix(in srgb,var(--code) 95%,var(--a1))}
+
+/* ─── Footer Bar ─── */
+.foot{
+  display:flex;justify-content:space-between;
+  padding:8px 16px;font-size:12px;color:var(--mute);
+  border-top:1px solid var(--line);
+}
+
+/* ─── Tabs ─── */
+.tabs{padding:8px 12px 0;gap:2px}
+.tabs button{
+  border:0;background:none;border-bottom:2px solid transparent;
+  border-radius:0;color:var(--mute);
+  padding:10px 14px;font-weight:500;
+  position:relative;
+  transition:color .2s ease,border-color .2s ease;
+}
+.tabs button:hover{color:var(--ink);transform:none;box-shadow:none}
+.tabs button[aria-selected=true]{
+  color:var(--ink);font-weight:700;
+  border-color:var(--a2);
+}
+.tabs button[aria-selected=true]::after{
+  content:"";position:absolute;bottom:-1px;left:20%;right:20%;height:2px;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  border-radius:2px;
+}
+
+/* ─── Badge ─── */
+.badge{
+  background:var(--err);color:#fff;border-radius:999px;
+  font-size:11px;font-weight:700;padding:2px 8px;margin-left:5px;
+  animation:badgePop .3s ease;
+}
+.badge:empty{display:none}
+@keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* ─── Views / Tab Content ─── */
+.view{
+  flex:1;display:none;overflow:auto;flex-direction:column;
+  min-height:0;
+  animation:fadeIn .3s ease;
+}
+.view.on{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.text{padding:18px;overflow:auto;flex:1;background:var(--code)}
+.text h4{margin:16px 0 6px;color:var(--a2);font-weight:700}
+.text code,.issue code{
+  font:12px "JetBrains Mono",monospace;
+  background:var(--bg2);padding:2px 7px;border-radius:6px;
+}
+.text ul{padding-left:22px}
+
+/* ─── Issues ─── */
+.issue{
+  margin:10px 16px 0;padding:12px 16px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  border-left:4px solid var(--info);
+  background:var(--code);
+  transition:transform .2s ease,box-shadow .2s ease;
+  animation:slideIn .3s ease;
+}
+.issue:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.issue.error{border-left-color:var(--err)}
+.issue.warning{border-left-color:var(--warn)}
+.issue .t{font-weight:700;font-size:13px}
+.issue.error .t{color:var(--err)}
+.issue.warning .t{color:var(--warn)}
+.issue.info .t{color:var(--info)}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+
+.empty{padding:40px 20px;color:var(--mute);text-align:center;font-size:14px;line-height:1.7}
+
+/* ─── Loader ─── */
+.loader{
+  display:none;position:absolute;inset:0;
+  background:color-mix(in srgb,var(--panel-solid) 85%,transparent);
+  backdrop-filter:blur(6px);
+  place-items:center;align-content:center;gap:14px;z-index:2;
+  animation:fadeIn .2s ease;
+}
+.loader.on{display:grid}
+.spin{
+  width:42px;height:42px;border-radius:50%;
+  border:4px solid var(--line);
+  border-top-color:var(--a2);border-right-color:var(--a1);
+  animation:spin .7s linear infinite;
+  justify-self:center;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rel{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
+
+/* ─── Run Bar & Results ─── */
+.runbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+#stdin{
+  flex:none;width:100%;min-height:0;height:60px;
+  border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;background:var(--bg2);
+  margin-bottom:14px;font-size:12px;
+  font-family:"JetBrains Mono",monospace;
+  transition:border-color .2s ease;
+}
+#stdin:focus{border-color:var(--a2);outline:none}
+
+.res{
+  border:1px solid var(--line);border-radius:14px;
+  margin-bottom:14px;overflow:hidden;
+  background:var(--panel-solid);
+  transition:transform .2s ease;
+  animation:slideIn .3s ease;
+}
+.res:hover{transform:translateY(-2px)}
+.res header{
+  padding:10px 14px;display:flex;gap:8px;align-items:center;
+  border-bottom:1px solid var(--line);
+  font-size:13px;font-weight:700;
+}
+.res pre{
+  margin:0;padding:12px 14px;
+  font:12px/1.6 "JetBrains Mono",monospace;
+  white-space:pre-wrap;word-break:break-word;
+  max-height:240px;overflow:auto;
+}
+.res .se{color:var(--err)}.res .lbl{font-size:11px;color:var(--mute);padding:8px 14px 0}
+.pill{
+  font-size:11px;padding:3px 10px;border-radius:999px;
+  color:#fff;font-weight:700;
+}
+.pill.ok{background:var(--ok)}.pill.bad{background:var(--err)}.pill.warn{background:var(--warn)}
+
+.cmp{padding:12px 16px;border-radius:12px;margin-bottom:14px;font-weight:700}
+.cmp.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.cmp.bad{background:color-mix(in srgb,var(--err) 14%,transparent);color:var(--err)}
+.cmp.info{background:var(--bg2);color:var(--ink)}
+.step-note{color:var(--mute);font-size:13px;margin:0 0 12px}
+#vbanner .cmp{margin-bottom:14px}
+
+/* ─── Responsive ─── */
+@media(max-width:900px){
+  main{grid-template-columns:1fr;gap:16px}
+  .wrapper{padding:0 14px 36px}
+  header{padding:20px 0 14px;gap:14px}
+  .brand h1{font-size:22px}
+  .bar{padding:10px 12px}
+  button,select{padding:10px 14px;font-size:14px;min-height:44px}
+  .primary{padding:12px 20px}
+  textarea,pre.out{min-height:300px;padding:14px;font-size:13px}
+  .tabs button{padding:10px 10px;font-size:13px}
+  .chips{gap:8px;padding:0 0 6px}
+  .chip{padding:6px 12px;font-size:12px}
+  .pane{min-height:440px;border-radius:14px}
+}
+@media(max-width:480px){
+  .brand h1{font-size:20px}
+  .brand p{font-size:12px}
+  .logo{width:38px;height:38px;font-size:15px}
+  .bar{gap:6px}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .tabs button{white-space:nowrap;flex-shrink:0}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<header>
+  <div class="logo">&lt;/&gt;</div>
+  <div class="brand">
+    <h1>Code<span>Shift</span></h1>
+    <p id="tagline">Translate, explain &amp; debug code in seconds</p>
+  </div>
+  <div class="grow"></div>
+  <button id="theme" aria-label="Toggle light or dark mode" title="Toggle theme">☀️</button>
+</header>
+<div class="chips">
+  <span class="chip">19 languages</span>
+  <span class="chip">Step-by-step explanations</span>
+  <span class="chip">Bug detection</span>
+  <span class="chip">Large file support</span>
+  <span class="chip">Run &amp; compare</span>
+  <span class="chip">Auto-fix</span>
+</div>
+<div id="status" role="status" aria-live="polite"></div>
+<main>
+  <section class="pane">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><b>Input</b>
+      <select id="src" aria-label="Source language"></select><div class="grow"></div>
+      <button id="runSrcTop">▶ Run</button><button id="sample">Sample</button><button id="upload">Open file</button><button id="clear">Clear</button>
+      <input type="file" id="file" hidden>
+    </div>
+    <textarea id="code" spellcheck="false" placeholder="Paste your code here, or click Sample.&#10;Large files are split automatically."></textarea>
+    <div class="foot"><span id="count">0 lines · 0 chars</span><span>Tab key inserts spaces</span></div>
+  </section>
+  <section class="pane">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><b>Output</b>
+      <button id="swap" title="Swap languages" aria-label="Swap languages">⇄</button>
+      <select id="tgt" aria-label="Target language"></select><div class="grow"></div>
+      <button class="primary" id="go">Translate</button><select id="tries" title="Maximum fix attempts" aria-label="Maximum fix attempts"><option value="1">1 fix</option><option value="2">2 fixes</option><option value="3" selected>3 fixes</option><option value="5">5 fixes</option></select><button id="fix" title="Translate, run, compare, and let the model fix failures">Auto-fix</button><button id="check">Explain &amp; check</button>
+    </div>
+    <div class="bar tabs" role="tablist" style="padding-bottom:0;border-bottom:1px solid var(--line)">
+      <button role="tab" aria-selected="true" data-v="v-out">Translated code</button>
+      <button role="tab" aria-selected="false" data-v="v-ver">Verify</button>
+      <button role="tab" aria-selected="false" data-v="v-run">Console</button>
+      <button role="tab" aria-selected="false" data-v="v-exp">Explanation</button>
+      <button role="tab" aria-selected="false" data-v="v-err">Errors<span class="badge" id="cnt"></span></button>
+      <div class="grow"></div><button id="copy">Copy</button><button id="dl">Download</button>
+    </div>
+    <div class="rel">
+      <div class="loader" id="loader"><div class="spin"></div><div id="ltxt" style="text-align:center;color:var(--mute);font-weight:500">Working...</div></div>
+      <div class="view on" id="v-out"><pre class="out" id="out"><span style="color:var(--mute)">Your translated code will appear here.</span></pre></div>
+      <div class="view" id="v-ver"><div class="text"><div id="vbanner"></div><div id="vlog"><div class="empty">Click Auto-fix to translate your code, run the original and the translation, compare output, and fix any failure.<br><small>Code runs on the computer hosting this server. Only run code you trust.</small></div></div></div></div>
+      <div class="view" id="v-run"><div class="text" id="runbox">
+        <div class="runbar"><button id="runSrc">▶ Run input</button><button id="runOut">▶ Run translation</button><button class="primary" id="runBoth">Run both &amp; compare</button></div>
+        <textarea id="stdin" spellcheck="false" placeholder="Optional program input (stdin), one value per line"></textarea>
+        <div id="runres"><div class="empty">Run your code to see what it prints.<br><small>Code runs on the computer hosting this server. Only run code you trust.</small></div></div>
+      </div></div>
+      <div class="view" id="v-exp"><div class="text" id="exp"><div class="empty">Click "Explain &amp; check" to get a walkthrough of your code.</div></div></div>
+      <div class="view" id="v-err"><div id="errs" style="padding-bottom:16px"><div class="empty">No analysis yet. Click "Explain &amp; check".</div></div></div>
+    </div>
+  </section>
+</main>
+</div>
+<script>
+const LANGS=["Python","Java","C++","C","C#","JavaScript","TypeScript","Go","Rust","Kotlin","Swift","PHP","Ruby","Scala","R","Dart","MATLAB","SQL","Bash"];
+const EXT={Python:"py",Java:"java","C++":"cpp",C:"c","C#":"cs",JavaScript:"js",TypeScript:"ts",Go:"go",Rust:"rs",Kotlin:"kt",Swift:"swift",PHP:"php",Ruby:"rb",Scala:"scala",R:"r",Dart:"dart",MATLAB:"m",SQL:"sql",Bash:"sh"};
+const SAMPLE=`def average(nums):
+    total = 0
+    for n in nums:
+        total += n
+    return total / len(nums)
+
+print(average([]))`;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// theme (saved in this browser; falls back gracefully if storage is blocked)
+function setTheme(t){document.documentElement.dataset.theme=t;$("theme").textContent=t==="dark"?"☀️":"🌙";try{localStorage.setItem("theme",t)}catch{}}
+let saved=null;try{saved=localStorage.getItem("theme")}catch{}
+setTheme(saved||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
+$("theme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+
+$("src").innerHTML='<option>auto-detect</option>'+LANGS.map(l=>`<option>${l}</option>`).join("");
+$("tgt").innerHTML=LANGS.map(l=>`<option>${l}</option>`).join("");$("tgt").value="Java";
+
+const stat=(m,c="")=>{$("status").textContent=m;$("status").className=c};
+const busy=(on,msg="")=>{["go","check"].forEach(i=>$(i).disabled=on);$("loader").classList.toggle("on",on);$("ltxt").textContent=msg;if(on)stat("")};
+const upd=()=>{const v=$("code").value;$("count").textContent=`${v?v.split("\n").length:0} lines · ${v.length} chars`};
+$("code").oninput=upd;
+$("code").onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const t=e.target,s=t.selectionStart;t.setRangeText("    ",s,t.selectionEnd,"end");upd()}};
+
+document.querySelectorAll(".tabs [data-v]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs [data-v]").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===b.dataset.v));
+});
+const show=v=>document.querySelector(`[data-v=${v}]`).click();
+
+// tiny, safe markdown renderer for the explanation
+function md(t){
+  let h=esc(t).replace(/```[\w+#-]*\n([\s\S]*?)```/g,(_,c)=>`<pre style="margin:8px 0;padding:10px;background:var(--bg2);border-radius:8px;overflow:auto">${c}</pre>`)
+   .replace(/`([^`\n]+)`/g,"<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>")
+   .replace(/^#{1,4} (.+)$/gm,"<h4>$1</h4>").replace(/^\s*[-*] (.+)$/gm,"<li>$1</li>")
+   .replace(/((<li>[\s\S]*?<\/li>)(?=\n(?!<li>)|$))/g,m=>m).replace(/\n{2,}/g,"<br><br>");
+  return h.replace(/((<li>.*?<\/li>)(<br>)?)+/g,m=>"<ul>"+m.replace(/<br>/g,"")+"</ul>");
+}
+
+async function api(path,body){
+  const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok){let d="";try{d=(await r.json()).detail}catch{}throw new Error(d||r.statusText)}
+  return r.json();
+}
+$("go").onclick=async()=>{
+  const code=$("code").value.trim(); if(!code)return stat("Paste some code first.","err");
+  show("v-out");busy(true,"Translating... large files are processed in parts");
+  try{const d=await api("/api/translate",{code,source:$("src").value,target:$("tgt").value});
+    $("out").textContent=d.translated_code;busy(false);stat(`Translated to ${$("tgt").value} (${d.chunks} part${d.chunks>1?"s":""}).`,"ok");
+  }catch(e){busy(false);$("out").innerHTML=`<span style="color:var(--err)">Translation failed:\n${esc(e.message)}</span>`;stat("Translation failed.","err")}
+};
+$("check").onclick=async()=>{
+  const code=$("code").value.trim(); if(!code)return stat("Paste some code first.","err");
+  busy(true,"Analyzing your code...");
+  try{const d=await api("/api/analyze",{code,language:$("src").value});
+    $("exp").innerHTML=md((d.summary?"**Summary:** "+d.summary+"\n\n":"")+d.explanation)||'<div class="empty">No explanation returned.</div>';
+    $("cnt").textContent=d.errors.length||"";
+    $("errs").innerHTML=d.errors.length?d.errors.map(e=>`<div class="issue ${esc(e.severity)}"><div class="t">Line ${esc(e.line)} · ${esc(e.severity)}</div>${esc(e.message)}${e.fix?`<br>Fix: <code>${esc(e.fix)}</code>`:""}</div>`).join(""):'<div class="empty">✅ No problems found.</div>';
+    show(d.errors.length?"v-err":"v-exp");busy(false);stat(`Analyzed as ${d.language}: ${d.errors.length} issue${d.errors.length===1?"":"s"} found.`,d.errors.length?"":"ok");
+  }catch(e){busy(false);stat("Analysis failed: "+e.message,"err")}
+};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("out").textContent);stat("Copied to clipboard.","ok")}catch{stat("Copy blocked by browser.","err")}};
+$("dl").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([$("out").textContent]));a.download="translated."+(EXT[$("tgt").value]||"txt");a.click()};
+$("sample").onclick=()=>{$("code").value=SAMPLE;$("src").value="Python";upd()};
+$("clear").onclick=()=>{$("code").value="";upd();$("out").innerHTML='<span style="color:var(--mute)">Your translated code will appear here.</span>'};
+$("swap").onclick=()=>{const o=$("out").textContent,ok=!o.startsWith("Your translated");if(!ok)return;const s=$("src").value,t=$("tgt").value;$("code").value=o;$("src").value=t;$("tgt").value=LANGS.includes(s)?s:"Python";upd();stat("Swapped: output is now the input.")};
+$("upload").onclick=()=>$("file").click();
+$("file").onchange=async e=>{const f=e.target.files[0];if(!f)return;$("code").value=await f.text();upd();
+  const x=f.name.split(".").pop(),m=Object.keys(EXT).find(k=>EXT[k]===x);if(m)$("src").value=m};
+
+// ---------- running code ----------
+let RT={enabled:true,timeout:10,languages:{}};
+fetch("/api/runtimes").then(r=>r.json()).then(d=>{RT=d}).catch(()=>{});
+const srcLang=()=>$("src").value, tgtLang=()=>$("tgt").value;
+function card(title,r){
+  const bad=r.timed_out||r.exit_code!==0, pill=r.timed_out?'<span class="pill warn">timed out</span>':bad?`<span class="pill bad">${r.stage==="compile"?"compile error":"exit "+r.exit_code}</span>`:'<span class="pill ok">success</span>';
+  return `<div class="res"><header>${esc(title)} ${pill}<span class="grow"></span><span style="color:var(--mute);font-weight:400">${r.seconds}s</span></header>
+   <div class="lbl">Output</div><pre>${r.stdout?esc(r.stdout):'<span style="color:var(--mute)">(no output)</span>'}</pre>
+   ${r.stderr?`<div class="lbl">${r.stage==="compile"?"Compiler messages":"Errors"}</div><pre class="se">${esc(r.stderr)}</pre>`:""}</div>`;
+}
+async function runOne(code,lang){
+  if(!RT.enabled) throw new Error("Running code is disabled on the server.");
+  if(!lang||lang==="auto-detect") throw new Error("Choose the source language (not auto-detect) to run it.");
+  if(RT.languages[lang]===false) throw new Error(`${lang} is not installed on this computer, so it cannot be run here.`);
+  return api("/api/run",{code,language:lang,stdin:$("stdin").value});
+}
+async function doRun(mode){
+  show("v-run");
+  const src=$("code").value.trim(), out=$("out").textContent, hasOut=!out.startsWith("Your translated")&&!out.startsWith("Translation failed");
+  if((mode!=="out")&&!src) return stat("Paste some code first.","err");
+  if((mode!=="src")&&!hasOut) return stat("Translate first, then run the translation.","err");
+  busy(true,mode==="both"?"Running both programs...":"Running...");
+  const parts=[];let a,b;
+  try{
+    const jobs=[];
+    if(mode!=="out") jobs.push(runOne(src,srcLang()).then(r=>{a=r;parts.push(card(`Input (${srcLang()})`,r))},e=>{parts.push(`<div class="cmp bad">Input: ${esc(e.message)}</div>`)}));
+    if(mode!=="src") jobs.push(runOne(out,tgtLang()).then(r=>{b=r;parts.push(card(`Translation (${tgtLang()})`,r))},e=>{parts.push(`<div class="cmp bad">Translation: ${esc(e.message)}</div>`)}));
+    await Promise.all(jobs);
+    let head="";
+    if(mode==="both"&&a&&b){const same=a.stdout.trim()===b.stdout.trim()&&!a.timed_out&&!b.timed_out;
+      head=same?'<div class="cmp ok">✅ Both programs print the same output.</div>':'<div class="cmp bad">⚠️ Outputs differ. The translation may have changed behavior.</div>';}
+    parts.sort((x,y)=>x.includes("Input")?-1:y.includes("Input")?1:0);
+    $("runres").innerHTML=head+parts.join("");
+    busy(false);stat("Finished running.","ok");
+  }catch(e){busy(false);stat("Run failed: "+e.message,"err")}
+}
+$("runSrc").onclick=()=>doRun("src");$("runOut").onclick=()=>doRun("out");$("runBoth").onclick=()=>doRun("both");
+$("runSrcTop").onclick=()=>doRun("src");
+
+// ---------- auto-fix loop ----------
+$("fix").onclick=async()=>{
+  const code=$("code").value.trim(); if(!code) return stat("Paste some code first.","err");
+  show("v-ver");$("vbanner").innerHTML="";$("vlog").innerHTML="";
+  const log=h=>$("vlog").insertAdjacentHTML("beforeend",h);
+  const step=(icon,title,body)=>`<div class="res"><header>${icon} ${esc(title)}</header>${body?`<pre>${esc(body)}</pre>`:""}</div>`;
+  busy(true,"Translating, running and fixing...");
+  const handle=ev=>{
+    if(ev.event==="status"){$("ltxt").textContent=ev.message}
+    else if(ev.event==="translated"){$("out").textContent=ev.code;log(step("📝",`Translated to ${tgtLang()} (${ev.chunks} part${ev.chunks>1?"s":""})`,""))}
+    else if(ev.event==="reference"){
+      const r=ev.result;
+      log(r?step(r.exit_code===0&&!r.timed_out?"▶️":"⚠️",`Ran the original (${ev.language}) as the reference`,r.stdout||r.stderr||"(no output)")
+            :step("ℹ️",`Original (${ev.language}) cannot be run here`,"Only errors in the translation can be detected, not different output."))}
+    else if(ev.event==="attempt"){
+      const r=ev.result;
+      log(`<div class="res"><header>${ev.passed?"✅":"❌"} ${ev.n===0?"Initial translation":"After fix "+ev.n}<span class="pill ${ev.passed?"ok":"bad"}">${ev.passed?"passed":"failed"}</span><span class="grow"></span><span style="color:var(--mute);font-weight:400">${r.seconds}s</span></header><pre>${esc(ev.reason)}</pre>${ev.passed&&r.stdout?`<div class="lbl">Program output</div><pre>${esc(r.stdout)}</pre>`:""}</div>`)}
+    else if(ev.event==="fixed"){$("out").textContent=ev.code;log(step("🔧",`Model proposed fix ${ev.n}`,"Updated code is shown in the Translated code tab."))}
+    else if(ev.event==="done"){
+      $("out").textContent=ev.code;
+      $("vbanner").innerHTML=ev.passed===true?`<div class="cmp ok">✅ Verified${ev.fixes?` after ${ev.fixes} fix${ev.fixes>1?"es":""}`:" on the first try"}. The translation behaves like the original.</div>`
+        :ev.passed===false?`<div class="cmp bad">⚠️ Still failing after ${ev.fixes} fix attempt${ev.fixes===1?"":"s"}. The latest version is in the Translated code tab; review it manually.</div>`
+        :`<div class="cmp info">ℹ️ ${esc(ev.note)}</div>`;
+      stat(ev.passed===true?"Translation verified.":ev.passed===false?"Could not fully fix the translation.":"Translated (not verified).",ev.passed===true?"ok":ev.passed===false?"err":"")}
+    else if(ev.event==="error"){throw new Error(ev.message)}
+  };
+  try{
+    const r=await fetch("/api/autofix",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,source:srcLang(),target:tgtLang(),stdin:$("stdin").value,max_attempts:+$("tries").value})});
+    if(!r.ok){let d="";try{d=(await r.json()).detail}catch{}throw new Error(d||r.statusText)}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="";
+    for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+      while((i=buf.indexOf("\n"))>=0){const line=buf.slice(0,i);buf=buf.slice(i+1);if(line.trim())handle(JSON.parse(line))}}
+    busy(false);
+  }catch(e){busy(false);$("vbanner").innerHTML=`<div class="cmp bad">Auto-fix failed: ${esc(e.message)}</div>`;stat("Auto-fix failed.","err")}
+};
+upd();
+</script>
+</body>
+</html>
